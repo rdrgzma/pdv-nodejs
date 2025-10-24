@@ -10,30 +10,39 @@ import userRoutes from './api/users.js';
 import saleRoutes from './api/sales.js';
 import settingsRoutes from './api/settings.js';
 
-const app = express();
-const PORT = process.env.PORT || 3001;
+const startServer = async () => {
+  try {
+    // Garante que o banco de dados seja inicializado ANTES de o servidor começar a rodar
+    await initDb();
+    
+    const app = express();
+    const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors()); // Permite requisições do seu frontend
-app.use(express.json()); // Permite que o servidor entenda JSON
+    // Middleware
+    app.use(cors()); // Permite requisições do seu frontend
+    app.use(express.json({ limit: '10mb' })); // Permite que o servidor entenda JSON e aumenta o limite para imagens em base64
 
-// Inicializa o banco de dados
-initDb();
+    // Rotas da API
+    app.use('/api/products', productRoutes);
+    app.use('/api/categories', categoryRoutes);
+    app.use('/api/customers', customerRoutes);
+    app.use('/api/users', userRoutes);
+    app.use('/api/sales', saleRoutes);
+    app.use('/api/settings', settingsRoutes);
 
-// Rotas da API
-app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/customers', customerRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/sales', saleRoutes);
-app.use('/api/settings', settingsRoutes);
+    // Middleware para tratamento de erros
+    app.use((err, req, res, next) => {
+      console.error(err.stack);
+      res.status(500).send({ error: 'Algo deu errado no servidor!' });
+    });
 
-// Middleware para tratamento de erros
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send({ error: 'Algo deu errado no servidor!' });
-});
+    app.listen(PORT, () => {
+      console.log(`Backend rodando em http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("Falha ao iniciar o servidor:", error);
+    process.exit(1); // Encerra o processo se a inicialização do DB falhar
+  }
+};
 
-app.listen(PORT, () => {
-  console.log(`Backend rodando em http://localhost:${PORT}`);
-});
+startServer();

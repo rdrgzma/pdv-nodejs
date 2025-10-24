@@ -4,22 +4,26 @@ import { openDb } from '../database.js';
 const router = Router();
 
 // GET all sales with items
-router.get('/', async (req, res) => {
-  const db = await openDb();
-  const sales = await db.all('SELECT * FROM sales ORDER BY id ASC');
-  const items = await db.all('SELECT * FROM sale_items');
-  
-  const salesWithItems = sales.map(sale => ({
-    ...sale,
-    itens: items.filter(item => item.saleId === sale.id).map(item => ({
-        id: item.productId,
-        nome: item.nome,
-        preco: item.preco,
-        qtd: item.qtd,
-    }))
-  }));
-  
-  res.json(salesWithItems);
+router.get('/', async (req, res, next) => {
+  try {
+    const db = await openDb();
+    const sales = await db.all('SELECT * FROM sales ORDER BY id ASC');
+    const items = await db.all('SELECT * FROM sale_items');
+    
+    const salesWithItems = sales.map(sale => ({
+      ...sale,
+      itens: items.filter(item => item.saleId === sale.id).map(item => ({
+          id: item.productId,
+          nome: item.nome,
+          preco: item.preco,
+          qtd: item.qtd,
+      }))
+    }));
+    
+    res.json(salesWithItems);
+  } catch (err) {
+    next(err);
+  }
 });
 
 // POST a new sale (transaction)

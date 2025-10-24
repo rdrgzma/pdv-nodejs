@@ -130,18 +130,23 @@ const ProductModal: React.FC<{ isOpen: boolean; onClose: () => void; product: Pr
     };
 
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!formData.nome.trim() || !formData.sku.trim()) {
             alert("Nome e SKU são obrigatórios.");
             return;
         }
 
-        if (product) {
-            updateProduct({ ...formData, id: product.id });
-        } else {
-            addProduct(formData);
+        try {
+            if (product) {
+                await updateProduct({ ...formData, id: product.id });
+            } else {
+                await addProduct(formData);
+            }
+            onClose();
+        } catch (error) {
+            console.error("Failed to save product:", error);
+            alert("Falha ao salvar o produto. Verifique o console para mais detalhes.");
         }
-        onClose();
     };
 
     return (
