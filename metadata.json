@@ -1,0 +1,5 @@
+{
+  "name": "AutoFranquia - Sistema de Gestão",
+  "description": "Um sistema de gestão de ponto de venda (PDV) para uma franquia automotiva, permitindo o gerenciamento de produtos, clientes, vendas, finanças e configurações do sistema.",
+  "requestFramePermissions": []
+}
